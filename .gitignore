@@ -1,0 +1,39 @@
+# Ignore compiled files and build output
+*.pyc
+__pycache__/
+*.pyo
+*.pyd
+*.so
+*.o
+*.a
+*.exe
+*.out
+*.dll
+*.bin
+*.iso
+*.egg-info/
+
+# Ignore environment and editor-specific files
+.env
+.vscode/
+.idea/
+*.sublime*
+*.swp
+*.swo
+*.tmp
+*.bak
+*.DS_Store
+
+# Ignore logs and temporary files
+*.log
+*.txt
+*.temp
+
+# Ignore system and cache files
+Thumbs.db
+desktop.ini
+.cache/
+node_modules/
+dist/
+build/
+picture/
