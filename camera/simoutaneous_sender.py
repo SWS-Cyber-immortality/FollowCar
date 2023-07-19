@@ -7,8 +7,7 @@ import zlib  # Import the zlib library
 
 
 # MQTT broker configuration
-# broker_address = "172.25.101.155"  # Update with your broker address
-broker_address = "172.25.100.84"  # Update with your broker address
+broker_address = "172.25.101.155"  # Update with your broker address
 broker_port = 1883  # Update with your broker port
 topic = "Video"  # Update with your desired topic
 

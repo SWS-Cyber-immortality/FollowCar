@@ -65,7 +65,7 @@ class yolov5():
 
         # Perform non maximum suppression to eliminate redundant overlapping boxes with
         # lower confidences.
-       #  return boxes
+        # return boxes
         indices = cv2.dnn.NMSBoxes(boxes, confidences, self.confThreshold, self.nmsThreshold)
 
         
@@ -75,7 +75,7 @@ class yolov5():
             top = box[1]
             width = box[2]
             height = box[3]
-            # TODO perform tracker 
+            # TODO perform tracker
             frame = self.drawPred(frame, classIds[i], confidences[i], left, top, left + width, top + height)
         return [boxes[i] for i in indices]
     
@@ -132,8 +132,8 @@ if __name__ == "__main__":
 
     # Open the camera
     cap = cv2.VideoCapture(0)
-    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640,)
-    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 640,)
+    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
+    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
     
     while True:
         # Read a frame from the camera
