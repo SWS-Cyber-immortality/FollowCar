@@ -39,6 +39,7 @@ class SORT:
 
         # Create new tracks for unmatched detections
         for detection in detections:
+            if not obj:continue
             if not any(self._iou(detection, obj.bbox) > self.iou_threshold for obj in self.tracked_objects):
                 self._create_track(detection)
 

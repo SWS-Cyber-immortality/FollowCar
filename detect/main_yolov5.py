@@ -41,7 +41,7 @@ class yolov5():
     def postprocess(self, frame, outs):
         frameHeight = frame.shape[0]
         frameWidth = frame.shape[1]
-        ratioh, ratiow = frameHeight / 640, frameWidth / 640
+        ratioh, ratiow = frameHeight / 640, frameWidth / 640,
         # Scan through all the bounding boxes output from the network and keep only the
         # ones with high confidence scores. Assign the box's class label as the class with the highest score.
         classIds = []
@@ -51,8 +51,8 @@ class yolov5():
             for detection in out:
                 scores = detection[5:]
                 classId = np.argmax(scores)
-                confidence = scores[classId]
-                if classId ==0 and confidence > self.confThreshold and detection[4] > self.objThreshold:
+                confidence = scores[classId] #  classId ==52 and
+                if confidence > self.confThreshold and detection[4] > self.objThreshold:
                     center_x = int(detection[0] * ratiow)
                     center_y = int(detection[1] * ratioh)
                     width = int(detection[2] * ratiow)
@@ -65,19 +65,19 @@ class yolov5():
 
         # Perform non maximum suppression to eliminate redundant overlapping boxes with
         # lower confidences.
-        return boxes
-        # indices = cv2.dnn.NMSBoxes(boxes, confidences, self.confThreshold, self.nmsThreshold)
+       #  return boxes
+        indices = cv2.dnn.NMSBoxes(boxes, confidences, self.confThreshold, self.nmsThreshold)
 
         
-        # # for i in indices:
-        # #     box = boxes[i]
-        # #     left = box[0]
-        # #     top = box[1]
-        # #     width = box[2]
-        # #     height = box[3]
-        # #     # TODO perform tracker 
-        # #     frame = self.drawPred(frame, classIds[i], confidences[i], left, top, left + width, top + height)
-        # return [boxes[i] for i in indices]
+        for i in indices:
+            box = boxes[i]
+            left = box[0]
+            top = box[1]
+            width = box[2]
+            height = box[3]
+            # TODO perform tracker 
+            frame = self.drawPred(frame, classIds[i], confidences[i], left, top, left + width, top + height)
+        return [boxes[i] for i in indices]
     
     def drawPred(self, frame, classId, conf, left, top, right, bottom):
         # Draw a bounding box.
@@ -132,24 +132,27 @@ if __name__ == "__main__":
 
     # Open the camera
     cap = cv2.VideoCapture(0)
-    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
-    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 640)
+    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640,)
+    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 640,)
     
     while True:
         # Read a frame from the camera
         ret, srcimg = cap.read()
         if not ret:
             break
+        # 180 degree rotation
 
+        srcimg =cv2.rotate(srcimg,cv2.ROTATE_180)
         # Perform object detection on the frame
         dets = yolonet.detect(srcimg)
         boxes = yolonet.postprocess(srcimg, dets)
-        tracked_object = sort_tracker.update(boxes)
+        # tracked_object = sort_tracker.update(boxes)
+        print(boxes)
         
-        if tracked_object is not None:
-            bbox =np.array(tracked_object.bbox).astype(int)
-            cv2.rectangle(srcimg, (bbox[0], bbox[1]), (bbox[2], bbox[3]), (0, 0, 255), thickness=2)
-            cv2.putText(srcimg, f"Track ID: {tracked_object.track_id}", (bbox[0], bbox[1] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), thickness=2)
+        # if tracked_object is not None:
+        #     bbox =np.array(tracked_object.bbox).astype(int)
+        #     cv2.rectangle(srcimg, (bbox[0], bbox[1]), (bbox[2], bbox[3]), (0, 0, 255), thickness=2)
+        #     cv2.putText(srcimg, f"Track ID: {tracked_object.track_id}", (bbox[0], bbox[1] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), thickness=2)
 
         # Display the frame with bounding boxes and labels
         send_to_server(srcimg)
