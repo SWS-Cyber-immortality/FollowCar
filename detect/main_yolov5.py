@@ -65,19 +65,19 @@ class yolov5():
 
         # Perform non maximum suppression to eliminate redundant overlapping boxes with
         # lower confidences.
-        return boxes
-        # indices = cv2.dnn.NMSBoxes(boxes, confidences, self.confThreshold, self.nmsThreshold)
+        # return boxes
+        indices = cv2.dnn.NMSBoxes(boxes, confidences, self.confThreshold, self.nmsThreshold)
 
         
-        # # for i in indices:
-        # #     box = boxes[i]
-        # #     left = box[0]
-        # #     top = box[1]
-        # #     width = box[2]
-        # #     height = box[3]
-        # #     # TODO perform tracker 
-        # #     frame = self.drawPred(frame, classIds[i], confidences[i], left, top, left + width, top + height)
-        # return [boxes[i] for i in indices]
+        for i in indices:
+            box = boxes[i]
+            left = box[0]
+            top = box[1]
+            width = box[2]
+            height = box[3]
+            # TODO perform tracker
+            frame = self.drawPred(frame, classIds[i], confidences[i], left, top, left + width, top + height)
+        return [boxes[i] for i in indices]
     
     def drawPred(self, frame, classId, conf, left, top, right, bottom):
         # Draw a bounding box.
@@ -133,7 +133,7 @@ if __name__ == "__main__":
     # Open the camera
     cap = cv2.VideoCapture(0)
     cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
-    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 640)
+    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
     
     while True:
         # Read a frame from the camera
@@ -144,12 +144,12 @@ if __name__ == "__main__":
         # Perform object detection on the frame
         dets = yolonet.detect(srcimg)
         boxes = yolonet.postprocess(srcimg, dets)
-        tracked_object = sort_tracker.update(boxes)
-        
-        if tracked_object is not None:
-            bbox =np.array(tracked_object.bbox).astype(int)
-            cv2.rectangle(srcimg, (bbox[0], bbox[1]), (bbox[2], bbox[3]), (0, 0, 255), thickness=2)
-            cv2.putText(srcimg, f"Track ID: {tracked_object.track_id}", (bbox[0], bbox[1] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), thickness=2)
+        # tracked_object = sort_tracker.update(boxes)
+        #
+        # if tracked_object is not None:
+        #     bbox =np.array(tracked_object.bbox).astype(int)
+        #     cv2.rectangle(srcimg, (bbox[0], bbox[1]), (bbox[2], bbox[3]), (0, 0, 255), thickness=2)
+        #     cv2.putText(srcimg, f"Track ID: {tracked_object.track_id}", (bbox[0], bbox[1] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), thickness=2)
 
         # Display the frame with bounding boxes and labels
         send_to_server(srcimg)
