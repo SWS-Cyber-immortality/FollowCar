@@ -86,7 +86,7 @@ if __name__ == '__main__':
 			top_3 = out.argsort()[-3:]
 			if cooldown > 0:
 				cooldown = cooldown - 1
-			if value.item() > 0.6 and indices < 25 and cooldown == 0:
+			if value.item() > 0.5 and indices < 25 and cooldown == 0:
 				print('Gesture:', ges[indices], '\t\t\t\t\t\t Value: {:.2f}'.format(value.item()))
 				cooldown = 16
 			pred = indices
