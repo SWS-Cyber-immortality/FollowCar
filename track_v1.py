@@ -59,24 +59,25 @@ def track():
     pre_anchor_midpoint_x = now_anchor_midpoint_x
 
     fps = cv2.getTickFrequency() / (cv2.getTickCount() - timer)
-    if ret:
-        p1 = (int(bbox[0]), int(bbox[1]))
-        p2 = (int(bbox[0] + bbox[2]), int(bbox[1] + bbox[3]))
-        cv2.rectangle(frame, p1, p2, (255, 0, 0), 2, 1)
-    else:
-        cv2.putText(frame, "Tracking failure detected", (100, 80),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.75, (0, 0, 255), 2)
-    cv2.putText(frame, "KCF Tracker", (100, 20),
-                cv2.FONT_HERSHEY_SIMPLEX, 0.75, (50, 170, 50), 2)
-    cv2.putText(frame, "FPS : " + str(int(fps)), (100, 50),
-                cv2.FONT_HERSHEY_SIMPLEX, 0.75, (50, 170, 50), 2)
-
-    # Display the tracking result
-    cv2.imshow("Tracking", frame)
-
-    # Exit if ESC key is pressed
-    if cv2.waitKey(1) & 0xFF == 27:
-        exit()
+    print(fps)
+    # if ret:
+    #     p1 = (int(bbox[0]), int(bbox[1]))
+    #     p2 = (int(bbox[0] + bbox[2]), int(bbox[1] + bbox[3]))
+    #     cv2.rectangle(frame, p1, p2, (255, 0, 0), 2, 1)
+    # else:
+    #     cv2.putText(frame, "Tracking failure detected", (100, 80),
+    #                 cv2.FONT_HERSHEY_SIMPLEX, 0.75, (0, 0, 255), 2)
+    # cv2.putText(frame, "KCF Tracker", (100, 20),
+    #             cv2.FONT_HERSHEY_SIMPLEX, 0.75, (50, 170, 50), 2)
+    # cv2.putText(frame, "FPS : " + str(int(fps)), (100, 50),
+    #             cv2.FONT_HERSHEY_SIMPLEX, 0.75, (50, 170, 50), 2)
+    #
+    # # Display the tracking result
+    # cv2.imshow("Tracking", frame)
+    #
+    # # Exit if ESC key is pressed
+    # if cv2.waitKey(1) & 0xFF == 27:
+    #     exit()
 
 def detect_ini():#detect object to track and initialize the tracker
     while True:
