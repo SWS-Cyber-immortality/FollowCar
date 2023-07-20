@@ -9,3 +9,8 @@
 | picture/          | Directory containing sample pictures             |
 | test/             | Directory containing test-related Python files   |
 | weights/          | Directory containing weight files for the model  |
+
+## Control
+### Gesture Control
+- 停止：stop sign
+- 启动：Thumb up
