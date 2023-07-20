@@ -27,6 +27,12 @@ def send_dict(msgtype, data):
             'width': data[2],
             'height': data[3]
         }
+    elif msgtype == 'gesture':
+        dic = {
+            'type': msgtype,
+            'action': data[1],
+            'gesture': data[0]
+        }
     if dic is not None:
         print('send dict:', dic)
         msg = json.dumps(dic)
@@ -65,7 +71,7 @@ ges = label_dict[0].tolist()
 mode = 0 # 0 for initial, 1 for following, 2 for manual
 def handle_gesture(indice):
     global mode
-    print(ges[indice])
+    print(indice,ges[indice])
     valid = True
     action = ''
     if indice == 20 and mode != 1:  # Thumb up: start to follow
@@ -87,7 +93,7 @@ def handle_gesture(indice):
     else:
         valid = False
 
-    if valid:
+    if valid is True:
         send_dict('gesture', (indice, action))
 
 if __name__ == '__main__':
@@ -129,7 +135,8 @@ if __name__ == '__main__':
 
     score_energy = torch.zeros((eval_samples, num_classes))
 
-    client = setup('172.25.110.168')
+    # client = setup('172.25.110.168')
+    client = setup('localhost')
     while True:
         ret, frame = cam.read()
         # Set up input for model
@@ -162,7 +169,7 @@ if __name__ == '__main__':
                 cooldown = cooldown - 1
             if value.item() > 0.5 and indices < 25 and cooldown == 0:
                 print('Gesture:', ges[indices], '\t\t\t\t\t\t Value: {:.2f}'.format(value.item()))
-                handle_gesture(indice)
+                handle_gesture(indice.item())
                 cooldown = 16
             pred = indices
             imgs = imgs[1:]
