@@ -13,12 +13,12 @@ parent_dir = os.path.dirname(current_dir)
 # Add the parent directory to Python's sys.path
 sys.path.append(parent_dir)
 
-from camera.simoutaneous_sender import send_to_server
-from sort import SORT
+#from camera.simoutaneous_sender import send_to_server
+#from sort import SORT
 
 class yolov5():
     def __init__(self, yolo_type, confThreshold=0.5, nmsThreshold=0.5, objThreshold=0.5,path ='../weights/'):
-        with open('../weights/coco.names', 'rt') as f:
+        with open(path+'coco.names', 'rt') as f:
             self.classes = f.read().rstrip('\n').split('\n')    ###这个是在coco数据集上训练的模型做opencv部署的，如果你在自己的数据集上训练出的模型做opencv部署，那么需要修改self.classes
         self.colors = [np.random.randint(0, 255, size=3).tolist() for _ in range(len(self.classes))]
         num_classes = len(self.classes)
@@ -53,7 +53,7 @@ class yolov5():
                 scores = detection[5:]
                 classId = np.argmax(scores)
                 confidence = scores[classId] #  classId ==52 and
-                if  confidence > self.confThreshold and detection[4] > self.objThreshold:
+                if  confidence > self.confThreshold and detection[4] > self.objThreshold and classId == 67:
                     center_x = int(detection[0] * ratiow)
                     center_y = int(detection[1] * ratioh)
                     width = int(detection[2] * ratiow)
