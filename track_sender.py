@@ -20,6 +20,7 @@ from control import send_to_arduino
 
 pre_anchor_midpoint_x =0
 
+
 def calculate_anchor_midpoint(bbox):
     # anchor_box is assumed to be a list or tuple of four values (x_min, y_min, x_max, y_max)
     p1 = (int(bbox[0]), int(bbox[1]))
@@ -134,8 +135,9 @@ def track():
     # send_to_server(type='preview',img = frame)
     print(fps)
 
+client = setup('172.25.110.168')
 if __name__ == '__main__':
-    client = setup('172.25.110.168')
+   
     video = cv2.VideoCapture(0)
     if not video.isOpened():
         print("Error: Unable to access the camera.")
@@ -154,7 +156,7 @@ if __name__ == '__main__':
     ret, frame = video.read()
  
     frame =cv2.rotate(frame, cv2.ROTATE_180)
-    # cv2.imwrite('test.jpg', frame)
+    cv2.imwrite('test.jpg', frame)
     frame = color_detection(frame)
     if not ret:
         print('cannot read the video')
