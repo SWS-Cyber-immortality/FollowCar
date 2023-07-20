@@ -4,7 +4,7 @@ import termios
 import tty
 import threading
 
-from camera.simoutaneous_sender import send_to_server
+# from camera.simoutaneous_sender import send_to_server
 
 # 打开串口
 ser = serial.Serial('/dev/ttyS0', 9600,timeout=1)  # 根据你的连接方式和串口号进行调整
@@ -19,8 +19,6 @@ def send_to_arduino(command, num):
         # 将数据发送给Arduino
         ser.write(data_to_send.encode())
 
-        # 关闭串口连接
-        ser.close()
 
         print(f"已发送命令：{command}，数字：{num} 到Arduino。")
     except serial.SerialException as e:
@@ -30,21 +28,21 @@ def send_to_arduino(command, num):
 def test():
     send_to_arduino('w','20')
 
-def main():
-    arduino_thread = threading.Thread(target=send_to_arduino, args=('w', 5))
-    server_thread = threading.Thread(target=send_to_server)
+# def main():
+#     arduino_thread = threading.Thread(target=send_to_arduino, args=('w', 5))
+#     server_thread = threading.Thread(target=send_to_server)
 
-    # Start the threads
-    arduino_thread.start()
-    server_thread.start()
+#     # Start the threads
+#     arduino_thread.start()
+#     server_thread.start()
 
-    # Wait for both threads to finish (you can add a timeout if needed)
-    arduino_thread.join()
-    server_thread.join()
+#     # Wait for both threads to finish (you can add a timeout if needed)
+#     arduino_thread.join()
+#     server_thread.join()
 
 if __name__ == "__main__":
     # pass
-   send_to_arduino('d','20')
+   send_to_arduino('q','20')
    
 
 

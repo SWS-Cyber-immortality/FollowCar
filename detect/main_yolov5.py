@@ -3,6 +3,7 @@ import argparse
 import numpy as np
 import os
 import sys
+import time
 # Get the current script's directory path
 current_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -52,7 +53,7 @@ class yolov5():
                 scores = detection[5:]
                 classId = np.argmax(scores)
                 confidence = scores[classId] #  classId ==52 and
-                if confidence > self.confThreshold and detection[4] > self.objThreshold:
+                if  confidence > self.confThreshold and detection[4] > self.objThreshold:
                     center_x = int(detection[0] * ratiow)
                     center_y = int(detection[1] * ratioh)
                     width = int(detection[2] * ratiow)
@@ -97,7 +98,6 @@ class yolov5():
         blob = cv2.dnn.blobFromImage(srcimg, 1 / 255.0, (640, 640), [0, 0, 0], swapRB=True, crop=False)
         # Sets the input to the network
         self.net.setInput(blob)
-
         # Runs the forward pass to get output of the output layers
         outs = self.net.forward(self.net.getUnconnectedOutLayersNames())
 
@@ -127,13 +127,16 @@ if __name__ == "__main__":
     parser.add_argument('--objThreshold', default=0.5, type=float, help='object confidence')
     args = parser.parse_args()
 
+    start_time = time.perf_counter()
     yolonet = yolov5(args.net_type, confThreshold=args.confThreshold, nmsThreshold=args.nmsThreshold, objThreshold=args.objThreshold)
+  
+   
     sort_tracker = SORT()  # Implement the SORT class based on the above code
 
     # Open the camera
     cap = cv2.VideoCapture(0)
-    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
-    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
+    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 320)
+    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 240)
     
     while True:
         # Read a frame from the camera
@@ -141,10 +144,16 @@ if __name__ == "__main__":
         if not ret:
             break
         # 180 degree rotation
-
+       
         srcimg =cv2.rotate(srcimg,cv2.ROTATE_180)
+        
+
         # Perform object detection on the frame
+        start_time = time.perf_counter()
         dets = yolonet.detect(srcimg)
+        end_time = time.perf_counter()
+        print(f"Detection time: {end_time - start_time}s")
+
         boxes = yolonet.postprocess(srcimg, dets)
         # tracked_object = sort_tracker.update(boxes)
         print(boxes)
@@ -155,7 +164,7 @@ if __name__ == "__main__":
         #     cv2.putText(srcimg, f"Track ID: {tracked_object.track_id}", (bbox[0], bbox[1] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), thickness=2)
 
         # Display the frame with bounding boxes and labels
-        send_to_server(srcimg)
+        send_to_server(type='preview',img = srcimg)
 
         # Press 'q' to quit the loop
         # if cv2.waitKey(1) & 0xFF == ord('q'):

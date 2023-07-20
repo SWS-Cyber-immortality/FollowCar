@@ -1,51 +1,46 @@
 import cv2
 import os
+import  sys
+# Get the current script's directory path
+current_dir = os.path.dirname(os.path.abspath(__file__))
 
-tracker_types = ['BOOSTING', 'MIL','KCF', 'TLD', 'MEDIANFLOW', 'GOTURN', 'MOSSE', 'CSRT']
-tracker_type = tracker_types[5]
-tracker = cv2.TrackerMIL_create() #Nano,GOTURN, MIL, DaSiamRPN
-video = cv2.VideoCapture(0)
+# Get the parent directory path (project_folder in this case)
+parent_dir = os.path.dirname(current_dir)
 
-ret, frame = video.read()
+# Add the parent directory to Python's sys.path
+sys.path.append(parent_dir)
+from camera.simoutaneous_sender import send_to_server
 
-frame_height, frame_width = frame.shape[:2]
-# Resize the video for a more convinient view
-frame = cv2.resize(frame, [frame_width // 2, frame_height // 2])
-# Initialize video writer to save the results
-output = cv2.VideoWriter(f'{tracker_type}.avi',
-                         cv2.VideoWriter_fourcc(*'XVID'), 60.0,
-                         (frame_width // 2, frame_height // 2), True)
-if not ret:
-    print('cannot read the video')
-# Select the bounding box in the first frame
-bbox = cv2.selectROI(frame, False)
-ret = tracker.init(frame, bbox)
-# Start tracking
-while True:
+
+
+
+if __name__ == '__main__':
+    #Nano,GOTURN, MIL, DaSiamRPN
+    video = cv2.VideoCapture(0)
+    if not video.isOpened():
+        print("Error: Unable to access the camera.")
+       
+    video.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
+    video.set(cv2.CAP_PROP_FRAME_HEIGHT, 640)
+
     ret, frame = video.read()
-    frame = cv2.resize(frame, [frame_width // 2, frame_height // 2])
-    if not ret:
-        print('something went wrong')
-        break
-    timer = cv2.getTickCount()
-    ret, bbox = tracker.update(frame)
-    fps = cv2.getTickFrequency() / (cv2.getTickCount() - timer)
-    if ret:
-        p1 = (int(bbox[0]), int(bbox[1]))
-        p2 = (int(bbox[0] + bbox[2]), int(bbox[1] + bbox[3]))
-        cv2.rectangle(frame, p1, p2, (255, 0, 0), 2, 1)
-    else:
-        cv2.putText(frame, "Tracking failure detected", (100, 80),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.75, (0, 0, 255), 2)
-    cv2.putText(frame, tracker_type + " Tracker", (100, 20),
-                cv2.FONT_HERSHEY_SIMPLEX, 0.75, (50, 170, 50), 2)
-    cv2.putText(frame, "FPS : " + str(int(fps)), (100, 50),
-                cv2.FONT_HERSHEY_SIMPLEX, 0.75, (50, 170, 50), 2)
-    cv2.imshow("Tracking", frame)
-    output.write(frame)
-    k = cv2.waitKey(1) & 0xff
-    if k == 27: break
+   
+    # print(frame)
+    frame = cv2.rotate(frame, cv2.ROTATE_180)
 
-video.release()
-output.release()
-cv2.destroyAllWindows()
+    # 
+    
+    cv2.imwrite('.../picture/first.jpg',frame)
+    # Initialize video writer to save the results
+    # output = cv2.VideoWriter(f'{tracker_type}.avi',
+    #                          cv2.VideoWriter_fourcc(*'XVID'), 60.0,
+    #                          (frame_width // 2, frame_height // 2), True)
+    if not ret:
+        print('cannot read the video')
+    # Select the bounding box in the first frame
+    video.release()
+    send_to_server(type='init',img =frame)
+    while True:
+        pass
+
+

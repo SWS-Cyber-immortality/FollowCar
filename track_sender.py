@@ -6,8 +6,10 @@ import zlib  # Import the zlib library
 import json
 import os
 import sys
+import numpy as np
 current_dir = os.path.dirname(os.path.abspath(__file__))
 
+mid_anchor_x = 240
 # Get the parent directory path (project_folder in this case)
 parent_dir = os.path.dirname(current_dir)
 
@@ -22,17 +24,16 @@ def calculate_anchor_midpoint(bbox):
     # anchor_box is assumed to be a list or tuple of four values (x_min, y_min, x_max, y_max)
     p1 = (int(bbox[0]), int(bbox[1]))
     p2 = (int(bbox[0] + bbox[2]), int(bbox[1] + bbox[3]))
-
     # Calculate the x-coordinate of the midpoint
     anchor_midpoint_x = int((p1[0] + p2[0]) / 2)
 
     return anchor_midpoint_x
 
-def move_motor_based_on_anchor_change(now_anchor_midpoint_x, pre_anchor_midpoint_x, threshold=30):
+def move_motor_based_on_anchor_change(now_anchor_midpoint_x, threshold=250):
     movement_threshold = threshold  # Set the threshold for motor movement
 
-    if abs(now_anchor_midpoint_x - pre_anchor_midpoint_x) > movement_threshold:
-        if now_anchor_midpoint_x > pre_anchor_midpoint_x:
+    if abs(now_anchor_midpoint_x - mid_anchor_x) > movement_threshold:
+        if now_anchor_midpoint_x >  mid_anchor_x:
             send_to_arduino('d', '20')  # Move the motor right
         else:
             send_to_arduino('a', '20')  # Move the motor left
@@ -40,11 +41,6 @@ def move_motor_based_on_anchor_change(now_anchor_midpoint_x, pre_anchor_midpoint
         send_to_arduino('w', '20')  # Move the motor forward
     
     return now_anchor_midpoint_x
-
-# MQTT broker configuration
-broker_address = "172.25.110.168"  # Update with your broker address
-broker_port = 1883  # Update with your broker port
-topic = "group7/Video"  # Update with your desired topic
 
 # # Initialize the camera
 # cap = cv2.VideoCapture(0)
@@ -62,91 +58,64 @@ def on_connect(client, userdata, flags, rc):
         print("Connection failed")
 
 initial = True
-start_time = time.perf_counter()
 def on_message(client, userdata, msg):
-    end_time = time.perf_counter()
-    print("Receive  result:{}s".format(end_time-start_time))
     global pre_anchor_midpoint_x, initial
     data = msg.payload
     dic = json.loads(data)
+    # print("message received " ,str(dic))
     if dic['type'] == 'init_bbox':
-        bbox =(dic['x'],dic['y'],dic['width'],dic['height']) 
-        frame = cv2.imread("../picture/first.jpg")
+        bbox = (dic['x'],dic['y'],dic['width'],dic['height'])
+        global video
+        ret, frame = video.read()
         ret = tracker.init(frame, bbox)
         pre_anchor_midpoint_x = calculate_anchor_midpoint(bbox)
     initial = False
     
+def setup(hostname):
+    client = mqtt.Client()
+    client.on_connect = on_connect
+    client.on_message = on_message
+    client.connect(hostname)
+    client.loop_start()
+    return client
 
-client = mqtt.Client()
-client.on_connect = on_connect
-client.on_message = on_message
-client.connect(broker_address, broker_port, 60)
-client.loop_start()
+def send_to_server(type, img):
+    ret, encode_frame = cv2.imencode('.jpg', img)
+    send_dict = {'type': type, 'img': encode_frame.tolist()}
+    client.publish("group7/Video", json.dumps(send_dict))
 
+def color_detection(frame):
+    lower_purple = np.array([0, 0, 100])
+    upper_purple = np.array([100, 100, 255])
+    # hsv_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 
+        # Create a mask to extract the blue color within the specified range
+    mask = cv2.inRange(frame, lower_purple, upper_purple)
 
+    # Bitwise-AND the mask with the original frame to get the color-tracked result
+    result = cv2.bitwise_and(frame, frame, mask=mask)
+    result_bgr = cv2.cvtColor(result, cv2.COLOR_HSV2BGR)
 
+    return result_bgr
 
-now = time.perf_counter()
-
-tracker_types = ['BOOSTING', 'MIL','KCF', 'TLD', 'MEDIANFLOW', 'GOTURN', 'MOSSE', 'CSRT']
-tracker_type = tracker_types[5]
-tracker = cv2.TrackerMIL_create() #Nano,GOTURN, MIL, DaSiamRPN
-
-def timeit(func):
-    def wrapper(*args, **kwargs):
-      
-        result = func(*args, **kwargs)
-        end = time.perf_counter() - start_time
-        print(func.__name__,end)
-        return result
-    return wrapper
-
-
-
-def send_to_server(type,img):
-    # Capture and publish video frames continuousl
-    # Publish the compressed frame to the MQTT broker
-       # print(type(img))
-       
-       #  cv2.imwrite("output.jpg",encoded_frame)
-        # Publish the compressed frame to the MQTT broker
-        ret, encode_frame = cv2.imencode('.jpg',img)
-        send_dict = {'type':type,'img': encode_frame.tolist()}
-
-        # if not ret:
-        #     print("fail to encode")
-        #   print(type(encode_frame))
-        print("send",topic)
-        client.publish(topic, json.dumps(send_dict))
-        # time.sleep(0.1)
-
-send_to_server(type='init',img = 1)   
-while True:
-    pass 
-    # finally:
-    # #  Clean up resources
-    #     client.loop_stop()
-    #     client.disconnect()
-    # #    cap.release()
-    #     cv2.destroyAllWindows()
 def track():
 # Start tracking
     global pre_anchor_midpoint_x
-    video = cv2.VideoCapture(0)
-    video.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
-    video.set(cv2.CAP_PROP_FRAME_HEIGHT, 640)
+    global video
     ret, frame = video.read()
     frame = cv2.rotate(frame, cv2.ROTATE_180)
+   
     # frame = cv2.resize(frame, [frame_width // 2, frame_height // 2])
+    frame = color_detection(frame)
     if not ret:
         print('something went wrong')
         return
     timer = cv2.getTickCount()
     ret, bbox = tracker.update(frame)
 
+
     now_anchor_midpoint_x = calculate_anchor_midpoint(bbox)
-    move_motor_based_on_anchor_change(now_anchor_midpoint_x, pre_anchor_midpoint_x)
+    move_motor_based_on_anchor_change(now_anchor_midpoint_x)
     pre_anchor_midpoint_x = now_anchor_midpoint_x
 
     fps = cv2.getTickFrequency() / (cv2.getTickCount() - timer)
@@ -157,28 +126,40 @@ def track():
     else:
         cv2.putText(frame, "Tracking failure detected", (100, 80),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.75, (0, 0, 255), 2)
-    cv2.putText(frame, tracker_type + " Tracker", (100, 20),
+    cv2.putText(frame, "MIL Tracker", (100, 20),
                 cv2.FONT_HERSHEY_SIMPLEX, 0.75, (50, 170, 50), 2)
     cv2.putText(frame, "FPS : " + str(int(fps)), (100, 50),
                 cv2.FONT_HERSHEY_SIMPLEX, 0.75, (50, 170, 50), 2)
     
-    send_to_server(type='preview',img = frame)
-    # print(fps)
-    # output.write(frame)
-    # k = cv2.waitKey(1) & 0xff
-    video.release()
+    # send_to_server(type='preview',img = frame)
+    print(fps)
 
-  
+if __name__ == '__main__':
+    client = setup('172.25.110.168')
+    video = cv2.VideoCapture(0)
+    if not video.isOpened():
+        print("Error: Unable to access the camera.")
+    video.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
+    video.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
 
-def test():
-    cap = cv2.VideoCapture(0)
-    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1080)
-    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
-    
+    # tracker = cv2.TrackerMIL_create()
+    # params = cv2.TrackerKCF_Params()
+    # 设置参数
+    # params.detect_thresh = 0.70
+    # params.interp_factor = 0.02#
+    # 使用这些参数创建跟踪器
+    # tracker = cv2.TrackerKCF_create()
+    tracker = cv2.TrackerCSRT_create()
+
+    ret, frame = video.read()
+ 
+    frame =cv2.rotate(frame, cv2.ROTATE_180)
+    # cv2.imwrite('test.jpg', frame)
+    frame = color_detection(frame)
+    if not ret:
+        print('cannot read the video')
+    send_to_server(type='init',img =frame)
+    while initial is True:
+        pass
     while True:
-        # Read a frame from the camera
-        ret, srcimg = cap.read()
-        if not ret:
-            break
-        send_to_server(srcimg)
-# test()
+        track()
