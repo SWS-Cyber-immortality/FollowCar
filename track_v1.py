@@ -3,6 +3,7 @@ import os
 import sys
 import numpy as np
 from detect.main_yolov5 import yolov5
+
 current_dir = os.path.dirname(os.path.abspath(__file__))
 
 mid_anchor_x = 240
@@ -13,7 +14,7 @@ parent_dir = os.path.dirname(current_dir)
 sys.path.append(parent_dir)
 
 #from control import send_to_arduino
-
+from camera.preview import preview
 pre_anchor_midpoint_x = 0
 
 
@@ -47,7 +48,7 @@ def track():
     ret, frame = video.read()
     #frame = cv2.rotate(frame, cv2.ROTATE_180)
 
-    #frame = cv2.resize(frame, [frame_width // 2, frame_height // 2])
+    frame = cv2.resize(frame, [frame_width // 2, frame_height // 2])
     if not ret:
         print('something went wrong')
         return
@@ -59,6 +60,7 @@ def track():
     pre_anchor_midpoint_x = now_anchor_midpoint_x
 
     fps = cv2.getTickFrequency() / (cv2.getTickCount() - timer)
+    print("FPS: ", int(fps))
     if ret:
         p1 = (int(bbox[0]), int(bbox[1]))
         p2 = (int(bbox[0] + bbox[2]), int(bbox[1] + bbox[3]))
@@ -71,20 +73,21 @@ def track():
     cv2.putText(frame, "FPS : " + str(int(fps)), (100, 50),
                 cv2.FONT_HERSHEY_SIMPLEX, 0.75, (50, 170, 50), 2)
 
-    # Display the tracking result
-    cv2.imwrite("Tracking.jpg", frame)
-
-    # Exit if ESC key is pressed
-    if cv2.waitKey(1) & 0xFF == 27:
-        exit()
+    # # Display the tracking result
+    preview(frame=frame)
+    # cv2.imwrite("Tracking.jpg", frame)
+    # # Exit if ESC key is pressed
+    # if cv2.waitKey(1) & 0xFF == 27:
+    #     exit()
 
 def detect_ini():#detect object to track and initialize the tracker
     while True:
         ret, frame = video.read()
+        frame = cv2.resize(frame, [frame_width // 2, frame_height // 2])
         if not ret:
             print('cannot read the video')
             return
-
+        cv2.imwrite('frame.jpg', frame)
         # 使用yolo模型进行检测
         dets = yolonet.detect(frame)
         boxes = yolonet.postprocess(frame, dets)
@@ -93,6 +96,7 @@ def detect_ini():#detect object to track and initialize the tracker
         if len(boxes) > 0:
             tracker.init(frame, tuple(boxes[0]))
             break
+        
         else:
             print("No target detected. Retrying...")
 
@@ -114,7 +118,7 @@ if __name__ == '__main__':
 
     ret, frame = video.read()
     frame_height, frame_width = frame.shape[:2]
-    yolonet = yolov5(yolo_type='yolov5s', confThreshold=0.90, nmsThreshold=0.5, objThreshold=0.5, path='./weights/')
+    yolonet = yolov5(yolo_type='yolov5s', confThreshold=0.50, nmsThreshold=0.5, objThreshold=0.5, path='./weights/')
     #detect object to track and initialize the tracker
     detect_ini()
     while True:

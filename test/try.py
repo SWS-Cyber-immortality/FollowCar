@@ -28,7 +28,7 @@ while True:
     ret, frame = video.read()
     frame = cv2.resize(frame, (frame_width // 2, frame_height // 2))  # Lower the resolution
     frame = cv2.rotate(frame, cv2.ROTATE_180)
-    cv2.imwrite('test.jpg', frame)
+    # cv2.imwrite('test.jpg', frame)
 
 bbox = tuple(faces[0])
 print(bbox)
@@ -51,7 +51,7 @@ while True:
         p1 = (int(bbox[0]), int(bbox[1]))
         p2 = (int(bbox[0] + bbox[2]), int(bbox[1] + bbox[3]))
         cv2.rectangle(frame, p1, p2, (255, 0, 0), 2, 1)
-        cv2.imwrite('test.jpg', frame)
+        # cv2.imwrite('test.jpg', frame)
     else:
         print("Tracking failure detected")
     print("FPS: ", int(fps))
