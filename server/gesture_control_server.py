@@ -76,9 +76,9 @@ def handle_gesture(indice):
     elif indice == 23 and mode != 2:  # Stop sign: stop follow, start to manual control
         action = 'stop'
         mode = 2
-    elif indice == 0 and mode == 2:  # Swiping left: turn left
+    elif (indice == 0 or indice == 6) and mode == 2:  # Swiping left: turn left
         action = 'left'
-    elif indice == 1 and mode == 2:  # Swiping right: turn right
+    elif (indice == 1 or indice == 7) and mode == 2:  # Swiping right: turn right
         action = 'right'
     # elif indice == 18 and mode == 2:  # Zooming In With Two Fingers: accelerate
     #     action = 'accelerate'
@@ -160,7 +160,7 @@ if __name__ == '__main__':
             top_3 = out.argsort()[-3:]
             if cooldown > 0:
                 cooldown = cooldown - 1
-            if value.item() > 0.6 and indices < 25 and cooldown == 0:
+            if value.item() > 0.5 and indices < 25 and cooldown == 0:
                 print('Gesture:', ges[indices], '\t\t\t\t\t\t Value: {:.2f}'.format(value.item()))
                 handle_gesture(indice)
                 cooldown = 16
