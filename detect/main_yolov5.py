@@ -53,7 +53,7 @@ class yolov5():
                 scores = detection[5:]
                 classId = np.argmax(scores)
                 confidence = scores[classId] #  classId ==52 and
-                if  confidence > self.confThreshold and detection[4] > self.objThreshold and classId == 67:
+                if  confidence > self.confThreshold and detection[4] > self.objThreshold and classId == 0:
                     center_x = int(detection[0] * ratiow)
                     center_y = int(detection[1] * ratioh)
                     width = int(detection[2] * ratiow)
@@ -131,7 +131,7 @@ if __name__ == "__main__":
     yolonet = yolov5(args.net_type, confThreshold=args.confThreshold, nmsThreshold=args.nmsThreshold, objThreshold=args.objThreshold)
   
    
-    sort_tracker = SORT()  # Implement the SORT class based on the above code
+    # sort_tracker = SORT()  # Implement the SORT class based on the above code
 
     # Open the camera
     cap = cv2.VideoCapture(0)

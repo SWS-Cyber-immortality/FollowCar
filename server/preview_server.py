@@ -37,6 +37,6 @@ def setup(hostname):
     return client
 
 if __name__ == '__main__':
-    client = setup('172.25.101.155')
+    client = setup('172.25.99.30')
     while True:
         pass
