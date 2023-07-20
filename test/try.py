@@ -2,7 +2,7 @@ import cv2
 import os
 import time
 
-tracker_types = ['BOOSTING', 'MIL','KCF', 'TLD', 'MEDIANFLOW', 'GOTURN', 'MOSSE', 'CSRT']
+tracker_types = ['BOOSTING', 'MIL', 'KCF', 'TLD', 'MEDIANFLOW', 'GOTURN', 'MOSSE', 'CSRT']
 tracker_type = tracker_types[2]  # Use KCF tracker
 
 tracker = cv2.TrackerKCF_create()
@@ -33,7 +33,7 @@ while True:
 bbox = tuple(faces[0])
 print(bbox)
 
-Ini_frame= frame
+Ini_frame = frame
 Ini_bbox = bbox
 Fail_count = 0
 ret = tracker.init(frame, bbox)
@@ -41,7 +41,6 @@ ret = tracker.init(frame, bbox)
 while True:
     ret, frame = video.read()
     frame = cv2.resize(frame, (frame_width // 2, frame_height // 2))  # Lower the resolution
-    frame = cv2.rotate(frame, cv2.ROTATE_180)   
     if not ret:
         print('something went wrong')
         break
@@ -52,7 +51,6 @@ while True:
         p1 = (int(bbox[0]), int(bbox[1]))
         p2 = (int(bbox[0] + bbox[2]), int(bbox[1] + bbox[3]))
         cv2.rectangle(frame, p1, p2, (255, 0, 0), 2, 1)
-     
         cv2.imwrite('test.jpg', frame)
     else:
         print("Tracking failure detected")
@@ -60,4 +58,4 @@ while True:
 
 video.release()
 cv2.destroyAllWindows()
- 
+

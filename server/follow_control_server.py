@@ -34,7 +34,6 @@ def on_message(client, userdata, msg):
     if data_dict['type'] == 'init':
         img = data_dict['img']
         img = np.array(img, dtype=np.uint8)
-        # img = np.frombuffer(img, np.uint8)
         img = cv2.imdecode(img, cv2.IMREAD_COLOR)
         bbox = cv2.selectROI(img, False)
         print('bbox',bbox)
@@ -47,6 +46,7 @@ def on_message(client, userdata, msg):
         cv2.imshow('Image Stream', img)
         cv2.waitKey(1)
 
+
 def setup(hostname):
     client = mqtt.Client()
     client.on_connect = on_connect
@@ -57,6 +57,5 @@ def setup(hostname):
 
 if __name__ == '__main__':
     client = setup('172.25.110.168')
-    # client = setup('localhost')
     while True:
         pass
