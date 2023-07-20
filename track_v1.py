@@ -100,10 +100,12 @@ def detect_ini():  # detect object to track and initialize the tracker
             # If the area of the box is larger than the maximum acceptable area, scale it down
             if area > max_area:
                 scale_factor = (max_area / area) ** 0.5  # square root to scale both width and height
-                w = int(w * scale_factor)
-                h = int(h * scale_factor)
+                w_new = int(w * scale_factor)
+                h_new = int(h * scale_factor)
                 # Recalculate the box
-                box = (x, y, w, h)
+                x = x + w // 2 - w_new // 2
+                y = y + h // 2 - h_new // 2
+                box = (x, y, w_new, h_new)
 
             tracker.init(frame, tuple(box))
             break
