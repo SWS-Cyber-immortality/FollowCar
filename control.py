@@ -43,7 +43,8 @@ def main():
     server_thread.join()
 
 if __name__ == "__main__":
-    test()
+    # pass
+   send_to_arduino('d','20')
    
 
 

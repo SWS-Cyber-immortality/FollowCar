@@ -41,7 +41,7 @@ class yolov5():
     def postprocess(self, frame, outs):
         frameHeight = frame.shape[0]
         frameWidth = frame.shape[1]
-        ratioh, ratiow = frameHeight / 640, frameWidth / 640
+        ratioh, ratiow = frameHeight / 640, frameWidth / 640,
         # Scan through all the bounding boxes output from the network and keep only the
         # ones with high confidence scores. Assign the box's class label as the class with the highest score.
         classIds = []
@@ -51,8 +51,8 @@ class yolov5():
             for detection in out:
                 scores = detection[5:]
                 classId = np.argmax(scores)
-                confidence = scores[classId]
-                if classId ==0 and confidence > self.confThreshold and detection[4] > self.objThreshold:
+                confidence = scores[classId] #  classId ==52 and
+                if confidence > self.confThreshold and detection[4] > self.objThreshold:
                     center_x = int(detection[0] * ratiow)
                     center_y = int(detection[1] * ratioh)
                     width = int(detection[2] * ratiow)
@@ -140,12 +140,15 @@ if __name__ == "__main__":
         ret, srcimg = cap.read()
         if not ret:
             break
+        # 180 degree rotation
 
+        srcimg =cv2.rotate(srcimg,cv2.ROTATE_180)
         # Perform object detection on the frame
         dets = yolonet.detect(srcimg)
         boxes = yolonet.postprocess(srcimg, dets)
         # tracked_object = sort_tracker.update(boxes)
-        #
+        print(boxes)
+        
         # if tracked_object is not None:
         #     bbox =np.array(tracked_object.bbox).astype(int)
         #     cv2.rectangle(srcimg, (bbox[0], bbox[1]), (bbox[2], bbox[3]), (0, 0, 255), thickness=2)

@@ -14,7 +14,7 @@ topic = "Video"  # Update with your desired topic
 # # Initialize the camera
 # cap = cv2.VideoCapture(0)
 
-# # Set the camera resolution (adjust as needed)
+# # # Set the camera resolution (adjust as needed)
 # cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
 # cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
 
@@ -39,13 +39,13 @@ def send_to_server(img):
        
        #  cv2.imwrite("output.jpg",encoded_frame)
         # Publish the compressed frame to the MQTT broker
-        # ret, encode_frame = cv2.imencode('.jpg',img)
+        ret, encode_frame = cv2.imencode('.jpg',img)
 
         # if not ret:
         #     print("fail to encode")
         #   print(type(encode_frame))
-        client.publish(topic, img.tobytes())
-        time.sleep(1)
+        client.publish(topic, encode_frame.tobytes())
+        time.sleep(0.1)
     
     # finally:
     # #  Clean up resources
@@ -53,4 +53,15 @@ def send_to_server(img):
     #     client.disconnect()
     # #    cap.release()
     #     cv2.destroyAllWindows()
-
+def test():
+    cap = cv2.VideoCapture(0)
+    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1080)
+    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
+    
+    while True:
+        # Read a frame from the camera
+        ret, srcimg = cap.read()
+        if not ret:
+            break
+        send_to_server(srcimg)
+# test()
