@@ -19,7 +19,6 @@ def send_to_arduino(command, num):
         # 将数据发送给Arduino
         ser.write(data_to_send.encode())
 
-
         print(f"已发送命令：{command}，数字：{num} 到Arduino。")
     except serial.SerialException as e:
         print(f"发送数据时出现错误：{e}")

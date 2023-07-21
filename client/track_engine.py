@@ -113,8 +113,7 @@ def detect_ini():  # detect object to track and initialize the tracker
         print("No target detected. Retrying...")
 
 
-
-if __name__ == '__main__':
+def track_prepare():
     video = cv2.VideoCapture(0)
     if not video.isOpened():
         print("Error: Unable to access the camera.")
@@ -134,6 +133,7 @@ if __name__ == '__main__':
     frame_height, frame_width = frame.shape[:2]
     yolonet = yolov5(yolo_type='yolov5s', confThreshold=0.50, nmsThreshold=0.5, objThreshold=0.5, path='./weights/')
     # detect object to track and initialize the tracker
-    detect_ini()
-    while True:
-        track()
+
+    # detect_ini()
+    # while True:
+    #     track()
