@@ -50,6 +50,7 @@ def on_message(client, userdata, msg):
             signal_valid = True
         elif gesId == 23:  # Stop sign: stop follow, start to manual control
             tracking = False
+            signal_valid = False
         elif gesId == 0 or gesId == 6:  # Swiping left: turn left
             control_signal = 'a'
             action_num = 90
@@ -82,7 +83,7 @@ def move_motor_based_on_anchor_change(now_anchor_midpoint_x, threshold=50):
 
 if __name__ == '__main__':
     client = setup('172.25.110.168')
-    track_engine =  TrackEngine()
+    track_engine = TrackEngine()
     while True:
         if tracking is True:
             now_anchor_midpoint_x = track_engine.track(tracker, video, frame_height, frame_width)

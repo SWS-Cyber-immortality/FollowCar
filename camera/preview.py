@@ -78,12 +78,10 @@ class StreamingServer(socketserver.ThreadingMixIn, server.HTTPServer):
 
 def capture_frame(output,frame):
     try:
-            ret, jpeg = cv2.imencode('.jpg', frame)
-            output.write(jpeg.tobytes())
+        ret, jpeg = cv2.imencode('.jpg', frame)
+        output.write(jpeg.tobytes())
     except Exception as e:
         logging.warning('Capture thread failed: %s', str(e))
-    
-
 
 class Preview:
     def __init__(self):
@@ -91,6 +89,12 @@ class Preview:
         self.address = ('', 8000)
     #   self.server = socketserver.TCPServer(self.address, StreamingHandler)
         self.server = StreamingServer(self.address, StreamingHandler)
+        server_thread = threading.Thread(target=self.server.serve_forever)
+        # capture_thread = threading.Thread(target=capture_frame, args=(output, self.frame))
+        server_thread.daemon = True
+        # capture_thread.daemon = True
+        server_thread.start()
+        # capture_thread.start()
 
     # @property
     # def output(self):
@@ -106,15 +110,4 @@ class Preview:
     # capture.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
     # capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
         self.frame = frame
-        try:
-            server_thread = threading.Thread(target=self.server.serve_forever)
-            capture_thread = threading.Thread(target=capture_frame, args=(output, self.frame))
-            server_thread.daemon = True
-            capture_thread.daemon = True
-            server_thread.start()
-            capture_thread.start()
-
-            # while True:
-            #     pass  # Keep the program running
-        except KeyboardInterrupt:
-            server.shutdown()
+        capture_frame(output, frame)
