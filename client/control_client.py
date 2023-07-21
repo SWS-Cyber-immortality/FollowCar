@@ -22,30 +22,26 @@ def on_connect(client, userdata, flags, rc):
         print("Failed to connect. Error code: {}.".format(rc))
 
 def on_message(client, userdata, msg):
+    global tracking, video, tracker, frame_height, frame_width, signal_valid, signal_valid, control_signal, action_num
     recv_file = msg.payload
     recv_dict = json.loads(recv_file)
     if recv_dict['type'] == 'gesture':
         gesId = recv_dict['gesId']
         if gesId == 20:  # Thumb up: start to follow
-            global tracking, video, tracker, frame_height, frame_width, signal_valid
             tracking = True
             signal_valid = False
             video, tracker, frame_height, frame_width = track_prepare()
         elif gesId == 21:  # Thumb down: Go ahead
-            global signal_valid, control_signal, action_num
             signal_valid = True
             control_signal = 'w'
             action_num = 20
         elif gesId == 23:  # Stop sign: stop follow, start to manual control
-            global tracking
             tracking = False
         elif gesId == 0 or gesId == 6:  # Swiping left: turn left
-            global signal_valid,control_signal,action_num
             signal_valid = False
             control_signal = 'a'
             action_num = 90
         elif gesId == 1 or gesId == 7:  # Swiping right: turn right
-            global signal_valid, control_signal, action_num
             signal_valid = False
             control_signal = 'd'
             action_num = 90
