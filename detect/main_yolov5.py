@@ -18,7 +18,7 @@ sys.path.append(parent_dir)
 
 class yolov5():
     def __init__(self, yolo_type, confThreshold=0.5, nmsThreshold=0.5, objThreshold=0.5,path ='../weights/'):
-        with open(path+'coco.names', 'rt') as f:
+        with open("/home/group7/FollowCar/weights/coco.names", 'rt') as f:
             self.classes = f.read().rstrip('\n').split('\n')    ###这个是在coco数据集上训练的模型做opencv部署的，如果你在自己的数据集上训练出的模型做opencv部署，那么需要修改self.classes
         self.colors = [np.random.randint(0, 255, size=3).tolist() for _ in range(len(self.classes))]
         num_classes = len(self.classes)
@@ -30,7 +30,7 @@ class yolov5():
         self.stride = np.array([8., 16., 32.])
         self.anchor_grid = np.asarray(anchors, dtype=np.float32).reshape(self.nl, 1, -1, 1, 1, 2)
 
-        self.net = cv2.dnn.readNet(path+yolo_type + '.onnx')
+        self.net = cv2.dnn.readNet("/home/group7/FollowCar/weights/yolov5s.onnx")
         self.confThreshold = confThreshold
         self.nmsThreshold = nmsThreshold
         self.objThreshold = objThreshold

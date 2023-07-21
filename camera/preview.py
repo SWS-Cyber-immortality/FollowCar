@@ -18,6 +18,7 @@ PAGE = """\
 </html>
 """
 
+  
 class StreamingOutput(object):
     def __init__(self):
         self.frame = None
@@ -28,9 +29,11 @@ class StreamingOutput(object):
             with self.condition:
                 self.frame = buf
                 self.condition.notify_all()
-
+output = StreamingOutput()
 class StreamingHandler(server.BaseHTTPRequestHandler):
     def do_GET(self):
+     
+        
         if self.path == '/':
             self.send_response(301)
             self.send_header('Location', '/index.html')
@@ -71,6 +74,7 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
 class StreamingServer(socketserver.ThreadingMixIn, server.HTTPServer):
     allow_reuse_address = True
     daemon_threads = True
+   
 
 def capture_frame(output,frame):
     try:
@@ -79,24 +83,38 @@ def capture_frame(output,frame):
     except Exception as e:
         logging.warning('Capture thread failed: %s', str(e))
     
-output = StreamingOutput()
-address = ('', 8000)
-server = StreamingServer(address, StreamingHandler)
 
-def preview(frame):
+
+class Preview:
+    def __init__(self):
+        self.frame = None
+        self.address = ('', 8000)
+    #   self.server = socketserver.TCPServer(self.address, StreamingHandler)
+        self.server = StreamingServer(self.address, StreamingHandler)
+
+    # @property
+    # def output(self):
+    #     return self._output
+    
+    # @output.setter
+    # def output(self, value):
+    #     # Optionally, you can add validation or other logic here before setting the value
+    #     self._output = value
+
+    def preview(self,frame):
     # capture = cv2.VideoCapture(0)  # Open the camera
     # capture.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
     # capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
+        self.frame = frame
+        try:
+            server_thread = threading.Thread(target=self.server.serve_forever)
+            capture_thread = threading.Thread(target=capture_frame, args=(output, self.frame))
+            server_thread.daemon = True
+            capture_thread.daemon = True
+            server_thread.start()
+            capture_thread.start()
 
-    try:
-        server_thread = threading.Thread(target=server.serve_forever)
-        capture_thread = threading.Thread(target=capture_frame, args=(output, frame))
-        server_thread.daemon = True
-        capture_thread.daemon = True
-        server_thread.start()
-        capture_thread.start()
-
-        # while True:
-        #     pass  # Keep the program running
-    except KeyboardInterrupt:
-        server.shutdown()
+            # while True:
+            #     pass  # Keep the program running
+        except KeyboardInterrupt:
+            server.shutdown()
