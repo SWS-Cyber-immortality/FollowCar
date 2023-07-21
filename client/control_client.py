@@ -96,7 +96,7 @@ def setup(hostname):
 previous_angle = None
 
 def move_motor_based_on_anchor_change(now_anchor_midpoint_x, threshold=50):
-    global previous_angle
+    global previous_angle, arduino_command, arduino_num
     movement_threshold = threshold  # Set the threshold for motor movement
     gap_X = mid_anchor_x - now_anchor_midpoint_x  # Change the order to invert the direction
 
@@ -115,11 +115,14 @@ def move_motor_based_on_anchor_change(now_anchor_midpoint_x, threshold=50):
 
     if abs(gap_X) > movement_threshold:
         if now_anchor_midpoint_x > mid_anchor_x:
-            send_to_arduino('d', '20')  # Move the motor right
+            arduino_command = 'd'
+            arduino_num = 20
         else:
-            send_to_arduino('a', '20')  # Move the motor left
+            arduino_command = 'a'
+            arduino_num = 20
     else:
-        send_to_arduino('w', '10')  # Move the motor forward
+        arduino_command = 'w'
+        arduino_num = 10
 
 
 if __name__ == '__main__':

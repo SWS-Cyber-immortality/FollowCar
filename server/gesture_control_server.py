@@ -135,8 +135,8 @@ if __name__ == '__main__':
 
     score_energy = torch.zeros((eval_samples, num_classes))
 
-    # client = setup('172.25.110.168')
-    client = setup('localhost')
+    client = setup('172.25.104.29')
+    # client = setup('localhost')
     while True:
         ret, frame = cam.read()
         # Set up input for model
