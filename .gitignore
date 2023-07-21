@@ -29,6 +29,7 @@ __pycache__/
 *.txt
 *.temp
 
+*.jpg
 # Ignore system and cache files
 Thumbs.db
 desktop.ini
