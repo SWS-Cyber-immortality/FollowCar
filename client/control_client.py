@@ -23,7 +23,10 @@ video = None
 tracker = None
 frame_height = None
 frame_width = None
-
+max_angle = 60#max angle of servo
+mid_anchor_x = 160#mid point of anchor box
+lower_bound = 90 - max_angle
+upper_bound = 90 + max_angle
 def on_connect(client, userdata, flags, rc):
     if rc == 0:
         print("Successfully connected to broker.")
@@ -67,8 +70,14 @@ def setup(hostname):
 
 def move_motor_based_on_anchor_change(now_anchor_midpoint_x, threshold=50):
     movement_threshold = threshold  # Set the threshold for motor movement
+    gap_X=now_anchor_midpoint_x - mid_anchor_x
 
-    if abs(now_anchor_midpoint_x - mid_anchor_x) > movement_threshold:
+
+    # Map the x-coordinate of the target (now_anchor_midpoint_x) from the image coordinate system (0 to 320)
+    # to the servo coordinate system (lower_bound to upper_bound)
+    angle = lower_bound + ((now_anchor_midpoint_x / 320) * (upper_bound - lower_bound))
+    send_to_arduino('r', str(angle)) #move the servo
+    if abs(gap_X) > movement_threshold:
         if now_anchor_midpoint_x > mid_anchor_x:
             send_to_arduino('d', '20')  # Move the motor right
         else:
