@@ -14,7 +14,7 @@ parent_dir = os.path.dirname(current_dir)
 sys.path.append(parent_dir)
 
 # from control import send_to_arduino
-from camera.preview import preview
+from camera.preview import Preview
 
 pre_anchor_midpoint_x = 0
 
@@ -56,7 +56,7 @@ def track(tracker,video,frame_height,frame_width):
                 cv2.FONT_HERSHEY_SIMPLEX, 0.75, (50, 170, 50), 2)
     cv2.putText(frame, "FPS : " + str(int(fps)), (100, 50),
                 cv2.FONT_HERSHEY_SIMPLEX, 0.75, (50, 170, 50), 2)
-    preview(frame=frame)
+    Preview(frame=frame).preview()
     return now_anchor_midpoint_x
 
 def detect_ini(yolonet,tracker,video,frame_height,frame_width):# detect object to track and initialize the tracker

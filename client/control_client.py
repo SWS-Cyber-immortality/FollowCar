@@ -4,6 +4,16 @@ import json
 from control import send_to_arduino
 from client.track_engine import *
 
+
+control_signal = None
+action_num = 20
+signal_valid = False
+tracking = False
+video = None
+tracker = None
+frame_height = None
+frame_width = None
+
 def on_connect(client, userdata, flags, rc):
     if rc == 0:
         print("Successfully connected to broker.")
@@ -59,14 +69,6 @@ def move_motor_based_on_anchor_change(now_anchor_midpoint_x, threshold=250):
     else:
         send_to_arduino('w', '20')  # Move the motor forward
 
-control_signal = None
-action_num = 20
-signal_valid = False
-tracking = False
-video = None
-tracker = None
-frame_height = None
-frame_width = None
 if __name__ == '__main__':
     client = setup('172.25.99.30')
     while True:
