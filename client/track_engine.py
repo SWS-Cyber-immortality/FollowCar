@@ -6,7 +6,6 @@ from detect.main_yolov5 import yolov5
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 
-mid_anchor_x = 240
 # Get the parent directory path (project_folder in this case)
 parent_dir = os.path.dirname(current_dir)
 
