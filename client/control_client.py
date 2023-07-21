@@ -1,9 +1,19 @@
 import paho.mqtt.client as mqtt
 import time
 import json
+import os
+import sys
+
+current_dir = os.path.dirname(os.path.abspath(__file__))
+
+# Get the parent directory path (project_folder in this case)
+parent_dir = os.path.dirname(current_dir)
+
+# Add the parent directory to Python's sys.path
+sys.path.append(parent_dir)
+
 from control import send_to_arduino
 from client.track_engine import *
-
 
 control_signal = None
 action_num = 20
@@ -17,7 +27,7 @@ frame_width = None
 def on_connect(client, userdata, flags, rc):
     if rc == 0:
         print("Successfully connected to broker.")
-        client.subscribe("Control")
+        client.subscribe("group7/Control")
     else:
         print("Failed to connect. Error code: {}.".format(rc))
 
@@ -25,6 +35,7 @@ def on_message(client, userdata, msg):
     global tracking, video, tracker, frame_height, frame_width, signal_valid, signal_valid, control_signal, action_num
     recv_file = msg.payload
     recv_dict = json.loads(recv_file)
+    print(recv_dict)
     if recv_dict['type'] == 'gesture':
         gesId = recv_dict['gesId']
         if gesId == 20:  # Thumb up: start to follow
@@ -54,7 +65,7 @@ def setup(hostname):
     client.loop_start()
     return client
 
-def move_motor_based_on_anchor_change(now_anchor_midpoint_x, threshold=250):
+def move_motor_based_on_anchor_change(now_anchor_midpoint_x, threshold=50):
     movement_threshold = threshold  # Set the threshold for motor movement
 
     if abs(now_anchor_midpoint_x - mid_anchor_x) > movement_threshold:
@@ -66,7 +77,7 @@ def move_motor_based_on_anchor_change(now_anchor_midpoint_x, threshold=250):
         send_to_arduino('w', '20')  # Move the motor forward
 
 if __name__ == '__main__':
-    client = setup('172.25.99.30')
+    client = setup('172.25.110.168')
     while True:
         if tracking is True:
             now_anchor_midpoint_x = track(tracker, video, frame_height, frame_width)
