@@ -24,7 +24,7 @@ def calculate_anchor_midpoint(bbox):
     p2 = (int(bbox[0] + bbox[2]), int(bbox[1] + bbox[3]))
     # Calculate the x-coordinate of the midpoint
     anchor_midpoint_x = int((p1[0] + p2[0]) / 2)
-
+    print("anchor_midpoint_x: ", anchor_midpoint_x)
     return anchor_midpoint_x
 
 class TrackEngine:
@@ -47,7 +47,7 @@ class TrackEngine:
         timer = cv2.getTickCount()
         ret, bbox = tracker.update(frame)
 
-        now_anchor_midpoint_x = int(bbox[0]+bbox[2]/2)
+        now_anchor_midpoint_x = calculate_anchor_midpoint(bbox)
         # move_motor_based_on_anchor_change(now_anchor_midpoint_x)
         #pre_anchor_midpoint_x = now_anchor_midpoint_x
 

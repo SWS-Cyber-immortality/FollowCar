@@ -36,7 +36,7 @@ def arduino_control():
     global arduino_command, arduino_num
     while True:
         if arduino_command is not None:
-            time.sleep(0.1)
+            time.sleep(2)
             if arduino_num == None:
                 send_to_arduino(arduino_command)
             else:
@@ -93,28 +93,37 @@ def setup(hostname):
     client.loop_start()
     return client
 
+previous_angle = None
+
 def move_motor_based_on_anchor_change(now_anchor_midpoint_x, threshold=50):
-    global arduino_command, arduino_num
+    global previous_angle
     movement_threshold = threshold  # Set the threshold for motor movement
-    gap_X=now_anchor_midpoint_x - mid_anchor_x
+    gap_X = mid_anchor_x - now_anchor_midpoint_x  # Change the order to invert the direction
 
     # Map the x-coordinate of the target (now_anchor_midpoint_x) from the image coordinate system (0 to 320)
     # to the servo coordinate system (lower_bound to upper_bound)
-    angle = lower_bound + ((now_anchor_midpoint_x / 320) * (upper_bound - lower_bound))
-    send_to_arduino('r', str(angle)) #move the servo
+    angle = -0.1875*now_anchor_midpoint_x + 120
+    # angle = upper_bound + ((now_anchor_midpoint_x / 320) * (upper_bound - lower_bound))
+    
+    print("angle: ", angle)
+    print("previous_angle: ", previous_angle)
+    print("x: ", now_anchor_midpoint_x)
+    # Only send the new angle to the Arduino if the difference with the previous angle is larger than 10 degrees
+    if previous_angle is None or abs(previous_angle - angle) > 3:
+        send_to_arduino('r', str(int(angle)))  # Move the servo
+        previous_angle = angle
+
     if abs(gap_X) > movement_threshold:
         if now_anchor_midpoint_x > mid_anchor_x:
-            arduino_command = 'd'
-            arduino_num = 20
+            send_to_arduino('d', '20')  # Move the motor right
         else:
-            arduino_command = 'a'
-            arduino_num = 20
+            send_to_arduino('a', '20')  # Move the motor left
     else:
-        arduino_command = 'w'
-        arduino_num = 20
+        send_to_arduino('w', '10')  # Move the motor forward
+
 
 if __name__ == '__main__':
-    client = setup('172.25.110.168')
+    client = setup('172.25.104.29')
     track_engine = TrackEngine()
 
     arduino_signal_thread = threading.Thread(target=arduino_control)
