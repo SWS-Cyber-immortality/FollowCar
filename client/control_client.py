@@ -3,6 +3,7 @@ import time
 import json
 import os
 import sys
+import threading
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -28,6 +29,16 @@ max_angle = 60#max angle of servo
 mid_anchor_x = 160#mid point of anchor box
 lower_bound = 90 - max_angle
 upper_bound = 90 + max_angle
+
+arduino_command = None
+arduino_num = 0
+def arduino_control():
+    global arduino_command,arduino_num
+    while True:
+        if arduino_command is not None:
+            time.sleep(0.1)
+            send_to_arduino(arduino_command, str(arduino_num))
+
 
 def on_connect(client, userdata, flags, rc):
     if rc == 0:
@@ -76,6 +87,7 @@ def setup(hostname):
     return client
 
 def move_motor_based_on_anchor_change(now_anchor_midpoint_x, threshold=50):
+    global arduino_command, arduino_num
     movement_threshold = threshold  # Set the threshold for motor movement
     gap_X=now_anchor_midpoint_x - mid_anchor_x
 
@@ -85,24 +97,29 @@ def move_motor_based_on_anchor_change(now_anchor_midpoint_x, threshold=50):
     send_to_arduino('r', str(angle)) #move the servo
     if abs(gap_X) > movement_threshold:
         if now_anchor_midpoint_x > mid_anchor_x:
-            send_to_arduino('d', '20')  # Move the motor right
+            arduino_command = 'd'
+            arduino_num = 20
         else:
-            send_to_arduino('a', '20')  # Move the motor left
+            arduino_command = 'a'
+            arduino_num = 20
     else:
-        send_to_arduino('w', '20')  # Move the motor forward
+        arduino_command = 'w'
+        arduino_num = 20
 
 if __name__ == '__main__':
     client = setup('172.25.110.168')
     track_engine = TrackEngine()
+
+    arduino_signal_thread = threading.Thread(target=arduino_control)
+    arduino_signal_thread.daemon = True
+    arduino_signal_thread.start()
+
     while True:
         if tracking is True:
             now_anchor_midpoint_x = track_engine.track(tracker, video, frame_height, frame_width)
             move_motor_based_on_anchor_change(now_anchor_midpoint_x)
-            time.sleep(0.05)
         elif signal_valid is True:
-            if control_signal == 'w':
-                send_to_arduino('w', '20')
-            else:
-                send_to_arduino(control_signal, str(action_num))
+            arduino_command = control_signal
+            arduino_num = action_num
+            if control_signal != 'w':
                 signal_valid = False
-            time.sleep(0.1)
