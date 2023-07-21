@@ -33,11 +33,14 @@ upper_bound = 90 + max_angle
 arduino_command = None
 arduino_num = 0
 def arduino_control():
-    global arduino_command,arduino_num
+    global arduino_command, arduino_num
     while True:
         if arduino_command is not None:
             time.sleep(0.1)
-            send_to_arduino(arduino_command, str(arduino_num))
+            if arduino_num == None:
+                send_to_arduino(arduino_command)
+            else:
+                send_to_arduino(arduino_command, str(arduino_num))
 
 
 def on_connect(client, userdata, flags, rc):
@@ -68,15 +71,19 @@ def on_message(client, userdata, msg):
         elif gesId == 0 or gesId == 6:  # Swiping left: turn left
             control_signal = 'a'
             action_num = 90
-            signal_valid = False
+            signal_valid = True
         elif gesId == 1 or gesId == 7:  # Swiping right: turn right
             control_signal = 'd'
             action_num = 90
-            signal_valid = False
+            signal_valid = True
         elif gesId == 18 and control_signal == 'w':
-            action_num = min(action_num + 5, 40)
+            control_signal = 'p'
+            action_num = None
+            signal_valid = True
         elif gesId == 19 and control_signal == 'w':
-            action_num = max(action_num - 5, 10)
+            control_signal = 'o'
+            action_num = None
+            signal_valid = True
 
 def setup(hostname):
     client = mqtt.Client()
