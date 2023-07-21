@@ -28,23 +28,23 @@ def on_message(client, userdata, msg):
     if recv_dict['type'] == 'gesture':
         gesId = recv_dict['gesId']
         if gesId == 20:  # Thumb up: start to follow
+            video, tracker, frame_height, frame_width = track_prepare()
             tracking = True
             signal_valid = False
-            video, tracker, frame_height, frame_width = track_prepare()
         elif gesId == 21:  # Thumb down: Go ahead
-            signal_valid = True
             control_signal = 'w'
             action_num = 20
+            signal_valid = True
         elif gesId == 23:  # Stop sign: stop follow, start to manual control
             tracking = False
         elif gesId == 0 or gesId == 6:  # Swiping left: turn left
-            signal_valid = False
             control_signal = 'a'
             action_num = 90
-        elif gesId == 1 or gesId == 7:  # Swiping right: turn right
             signal_valid = False
+        elif gesId == 1 or gesId == 7:  # Swiping right: turn right
             control_signal = 'd'
             action_num = 90
+            signal_valid = False
 
 def setup(hostname):
     client = mqtt.Client()
