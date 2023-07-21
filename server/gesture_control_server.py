@@ -31,7 +31,7 @@ def send_dict(msgtype, data):
         dic = {
             'type': msgtype,
             'action': data[1],
-            'gesture': data[0]
+            'gesId': data[0]
         }
     if dic is not None:
         print('send dict:', dic)

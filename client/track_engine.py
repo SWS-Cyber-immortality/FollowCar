@@ -28,20 +28,6 @@ def calculate_anchor_midpoint(bbox):
 
     return anchor_midpoint_x
 
-
-# def move_motor_based_on_anchor_change(now_anchor_midpoint_x, threshold=250):
-#     movement_threshold = threshold  # Set the threshold for motor movement
-#
-#     if abs(now_anchor_midpoint_x - mid_anchor_x) > movement_threshold:
-#         if now_anchor_midpoint_x > mid_anchor_x:
-#             send_to_arduino('d', '20')  # Move the motor right
-#         else:
-#             send_to_arduino('a', '20')  # Move the motor left
-#     else:
-#         send_to_arduino('w', '20')  # Move the motor forward
-#
-#     return now_anchor_midpoint_x
-
 def track(tracker,video,frame_height,frame_width):
     # Start tracking
     ret, frame = video.read()
@@ -71,7 +57,7 @@ def track(tracker,video,frame_height,frame_width):
     cv2.putText(frame, "FPS : " + str(int(fps)), (100, 50),
                 cv2.FONT_HERSHEY_SIMPLEX, 0.75, (50, 170, 50), 2)
     preview(frame=frame)
-
+    return now_anchor_midpoint_x
 
 def detect_ini(yolonet,tracker,video,frame_height,frame_width):# detect object to track and initialize the tracker
     while True:
