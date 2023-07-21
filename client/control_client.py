@@ -58,7 +58,7 @@ def setup(hostname):
     client.loop_start()
     return client
 
-def move_motor_based_on_anchor_change(now_anchor_midpoint_x, threshold=250):
+def move_motor_based_on_anchor_change(now_anchor_midpoint_x, threshold=50):
     movement_threshold = threshold  # Set the threshold for motor movement
 
     if abs(now_anchor_midpoint_x - mid_anchor_x) > movement_threshold:
