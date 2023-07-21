@@ -68,15 +68,22 @@ def setup(hostname):
     client.loop_start()
     return client
 
-def move_motor_based_on_anchor_change(now_anchor_midpoint_x, threshold=50):
-    movement_threshold = threshold  # Set the threshold for motor movement
-    gap_X=now_anchor_midpoint_x - mid_anchor_x
+previous_angle = None
 
+def move_motor_based_on_anchor_change(now_anchor_midpoint_x, threshold=50):
+    global previous_angle
+    movement_threshold = threshold  # Set the threshold for motor movement
+    gap_X = mid_anchor_x - now_anchor_midpoint_x  # Change the order to invert the direction
 
     # Map the x-coordinate of the target (now_anchor_midpoint_x) from the image coordinate system (0 to 320)
     # to the servo coordinate system (lower_bound to upper_bound)
     angle = lower_bound + ((now_anchor_midpoint_x / 320) * (upper_bound - lower_bound))
-    send_to_arduino('r', str(angle)) #move the servo
+
+    # Only send the new angle to the Arduino if the difference with the previous angle is larger than 10 degrees
+    if previous_angle is None or abs(previous_angle - angle) > 10:
+        send_to_arduino('r', str(angle))  # Move the servo
+        previous_angle = angle
+
     if abs(gap_X) > movement_threshold:
         if now_anchor_midpoint_x > mid_anchor_x:
             send_to_arduino('d', '20')  # Move the motor right
@@ -84,6 +91,7 @@ def move_motor_based_on_anchor_change(now_anchor_midpoint_x, threshold=50):
             send_to_arduino('a', '20')  # Move the motor left
     else:
         send_to_arduino('w', '20')  # Move the motor forward
+
 
 if __name__ == '__main__':
     client = setup('172.25.110.168')
