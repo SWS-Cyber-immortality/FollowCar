@@ -61,13 +61,16 @@ class TrackEngine:
         else:
             cv2.putText(frame, "Tracking failure detected", (100, 80),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.75, (0, 0, 255), 2)
-            return -1
         cv2.putText(frame, "KCF Tracker", (100, 20),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.75, (50, 170, 50), 2)
         cv2.putText(frame, "FPS : " + str(int(fps)), (100, 50),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.75, (50, 170, 50), 2)
         self.preview.preview(frame=frame)
-        return now_anchor_midpoint_x
+
+        if ret:
+            return now_anchor_midpoint_x
+        else:
+            return -1
 
     def detect_ini(self,yolonet,tracker,video,frame_height,frame_width):# detect object to track and initialize the tracker
         while True:
