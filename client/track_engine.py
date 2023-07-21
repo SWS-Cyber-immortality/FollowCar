@@ -42,10 +42,8 @@ def calculate_anchor_midpoint(bbox):
 #
 #     return now_anchor_midpoint_x
 
-def track():
+def track(tracker,video,frame_height,frame_width):
     # Start tracking
-    global pre_anchor_midpoint_x
-    global video
     ret, frame = video.read()
 
     frame = cv2.resize(frame, [frame_width // 2, frame_height // 2])
@@ -55,9 +53,9 @@ def track():
     timer = cv2.getTickCount()
     ret, bbox = tracker.update(frame)
 
-    now_anchor_midpoint_x = calculate_anchor_midpoint(bbox)
+    now_anchor_midpoint_x = int(bbox[0]+bbox[2]/2)
     # move_motor_based_on_anchor_change(now_anchor_midpoint_x)
-    pre_anchor_midpoint_x = now_anchor_midpoint_x
+    #pre_anchor_midpoint_x = now_anchor_midpoint_x
 
     fps = cv2.getTickFrequency() / (cv2.getTickCount() - timer)
     print("FPS: ", int(fps))
@@ -75,7 +73,7 @@ def track():
     preview(frame=frame)
 
 
-def detect_ini():  # detect object to track and initialize the tracker
+def detect_ini(yolonet,tracker,video,frame_height,frame_width):# detect object to track and initialize the tracker
     while True:
         ret, frame = video.read()
         frame = cv2.resize(frame, [frame_width // 2, frame_height // 2])
@@ -109,7 +107,7 @@ def detect_ini():  # detect object to track and initialize the tracker
 
             tracker.init(frame, tuple(box))
             break
-
+        ret, frame = video.read()
         print("No target detected. Retrying...")
 
 
@@ -128,12 +126,9 @@ def track_prepare():
     params.compressed_size = 1
     # 使用这些参数创建跟踪器
     tracker = cv2.TrackerKCF_create(params)
-
-    ret, frame = video.read()
-    frame_height, frame_width = frame.shape[:2]
     yolonet = yolov5(yolo_type='yolov5s', confThreshold=0.50, nmsThreshold=0.5, objThreshold=0.5, path='./weights/')
     # detect object to track and initialize the tracker
-
-    # detect_ini()
-    # while True:
-    #     track()
+    ret, frame = video.read()
+    frame_height, frame_width = frame.shape[:2]
+    detect_ini(yolonet,tracker,video,frame_height,frame_width)
+    return video,tracker,frame_height,frame_width
