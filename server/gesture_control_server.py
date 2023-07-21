@@ -86,10 +86,10 @@ def handle_gesture(indice):
         action = 'left'
     elif (indice == 1 or indice == 7) and mode == 2:  # Swiping right: turn right
         action = 'right'
-    # elif indice == 18 and mode == 2:  # Zooming In With Two Fingers: accelerate
-    #     action = 'accelerate'
-    # elif indice == 19 and mode == 2: # Zooming Out With Two Fingers: slow down
-    #     action = 'slow'
+    elif indice == 18 and mode == 2:  # Zooming In With Two Fingers: accelerate
+        action = 'accelerate'
+    elif indice == 19 and mode == 2:  # Zooming Out With Two Fingers: slow down
+        action = 'slow'
     else:
         valid = False
 

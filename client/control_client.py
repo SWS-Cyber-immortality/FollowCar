@@ -44,13 +44,13 @@ def on_message(client, userdata, msg):
             video, tracker, frame_height, frame_width = track_engine.track_prepare()
             tracking = True
             signal_valid = False
+        elif gesId == 23:  # Stop sign: stop follow, start to manual control
+            tracking = False
+            signal_valid = False
         elif gesId == 21:  # Thumb down: Go ahead
             control_signal = 'w'
             action_num = 20
             signal_valid = True
-        elif gesId == 23:  # Stop sign: stop follow, start to manual control
-            tracking = False
-            signal_valid = False
         elif gesId == 0 or gesId == 6:  # Swiping left: turn left
             control_signal = 'a'
             action_num = 90
@@ -59,6 +59,10 @@ def on_message(client, userdata, msg):
             control_signal = 'd'
             action_num = 90
             signal_valid = False
+        elif gesId == 18 and control_signal == 'w':
+            action_num = min(action_num + 5, 40)
+        elif gesId == 19 and control_signal == 'w':
+            action_num = max(action_num - 5, 10)
 
 def setup(hostname):
     client = mqtt.Client()
