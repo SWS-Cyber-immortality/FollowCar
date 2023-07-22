@@ -73,7 +73,7 @@ class TrackEngine:
         else:
             return -1
 
-    def detect_ini(self,yolonet,tracker,video,frame_height,frame_width):# detect object to track and initialize the tracker
+    def detect_ini(self,yolonet,tracker,video,frame_height,frame_width,classID):# detect object to track and initialize the tracker
         while True:
             ret, frame = video.read()
             frame = cv2.resize(frame, [frame_width // 2, frame_height // 2])
@@ -87,7 +87,7 @@ class TrackEngine:
             dets = yolonet.detect(frame)
             end_time = time.perf_counter()
             print("Detection time: ", end_time - start_time)
-            boxes = yolonet.postprocess(frame, dets)
+            boxes = yolonet.postprocess(frame, dets,classID)
 
             # 如果检测到目标，使用第一个检测到的目标来初始化跟踪器
             if len(boxes) > 0:
@@ -115,7 +115,7 @@ class TrackEngine:
             print("No target detected. Retrying...")
 
 
-    def track_prepare(self):
+    def track_prepare(self,classID):
         video = cv2.VideoCapture(0)
         if not video.isOpened():
             print("Error: Unable to access the camera.")
@@ -134,5 +134,36 @@ class TrackEngine:
         # detect object to track and initialize the tracker
         ret, frame = video.read()
         frame_height, frame_width = frame.shape[:2]
-        self.detect_ini(self.yolonet,self.tracker,video,frame_height,frame_width)
+        self.detect_ini(self.yolonet,self.tracker,video,frame_height,frame_width,classID)
         return video,self.tracker,frame_height,frame_width
+# def calculate_rotation_angle(track_engine, distance):
+#     # 使用yolo模型进行检测
+#     ret, frame = track_engine.video.read()
+#     frame = cv2.resize(frame, [track_engine.frame_width // 2, track_engine.frame_height // 2])
+#     if not ret:
+#         print('cannot read the video')
+#         return
+#     start_time = time.perf_counter()
+#     dets = track_engine.yolonet.detect(frame)
+#     end_time = time.perf_counter()
+#     print("Detection time: ", end_time - start_time)
+#     boxes = track_engine.yolonet.postprocess(frame, dets)
+#
+#     # 如果检测到目标，使用第一个检测到的目标来计算旋转角度
+#     if len(boxes) > 0:
+#         # Get the first box
+#         box = boxes[0]
+#         x, y, w, h = box
+#         now_anchor_midpoint_x = x + w // 2  # Calculate the midpoint of the box
+#
+#         # Calculate the difference between the current midpoint and the anchor midpoint
+#         diff_x = now_anchor_midpoint_x - mid_anchor_x
+#
+#         # Calculate the rotation angle based on the difference and the distance
+#         rotation_angle = math.atan2(diff_x, distance)
+#
+#         return rotation_angle
+#
+#     print("No target detected. Retrying...")
+#     return None
+

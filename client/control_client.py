@@ -62,7 +62,7 @@ def on_message(client, userdata, msg):
         gesId = recv_dict['gesId']
         if gesId == 20:  # Thumb up: start to follow
             start_time = time.perf_counter()
-            video, tracker, frame_height, frame_width = track_engine.track_prepare()
+            video, tracker, frame_height, frame_width = track_engine.track_prepare(0)
             end_time = time.perf_counter()
             print('track_prepare time: ', end_time - start_time)
             tracking = True
@@ -96,6 +96,13 @@ def on_message(client, userdata, msg):
             control_signal = 'o'
             action_num = None
             signal_valid = True
+        elif gesId == 30:  # purchase apple
+            start_time = time.perf_counter()
+            video, tracker, frame_height, frame_width = track_engine.track_prepare(47)
+            end_time = time.perf_counter()
+            print('track_prepare time: ', end_time - start_time)
+            tracking = True
+            signal_valid = False
 
 def setup(hostname):
     client = mqtt.Client()

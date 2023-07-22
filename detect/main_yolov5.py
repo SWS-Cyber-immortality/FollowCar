@@ -39,7 +39,7 @@ class yolov5():
         xv, yv = np.meshgrid(np.arange(ny), np.arange(nx))
         return np.stack((xv, yv), 2).reshape((1, 1, ny, nx, 2)).astype(np.float32)
 
-    def postprocess(self, frame, outs):
+    def postprocess(self, frame, outs, clssId):
         frameHeight = frame.shape[0]
         frameWidth = frame.shape[1]
         ratioh, ratiow = frameHeight / 640, frameWidth / 640,
@@ -53,7 +53,7 @@ class yolov5():
                 scores = detection[5:]
                 classId = np.argmax(scores)
                 confidence = scores[classId] #  classId ==52 and
-                if  confidence > self.confThreshold and detection[4] > self.objThreshold and classId == 0:
+                if  confidence > self.confThreshold and detection[4] > self.objThreshold and classId == clssId:
                     center_x = int(detection[0] * ratiow)
                     center_y = int(detection[1] * ratioh)
                     width = int(detection[2] * ratiow)
