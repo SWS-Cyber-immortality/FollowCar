@@ -146,7 +146,7 @@ def move_motor_based_on_anchor_change(now_anchor_midpoint_x, threshold=50):
 
 if __name__ == '__main__':
     track_engine = TrackEngine()
-    client = setup('172.25.107.87')
+    client = setup('192.168.43.41')
    
 
     arduino_signal_thread = threading.Thread(target=arduino_control)

@@ -51,7 +51,7 @@ def test():
 
 if __name__ == "__main__":
     # pass
-   send_to_arduino('r','90')
+   send_to_arduino('q','90')
    
 
 

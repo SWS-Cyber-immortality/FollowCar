@@ -3,6 +3,7 @@ import os
 import sys
 import numpy as np
 from detect.main_yolov5 import yolov5
+import time
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -14,7 +15,7 @@ parent_dir = os.path.dirname(current_dir)
 sys.path.append(parent_dir)
 
 # from control import send_to_arduino
-from camera.preview import preview
+# from camera.preview import preview
 
 pre_anchor_midpoint_x = 0
 
@@ -72,7 +73,7 @@ def track():
                 cv2.FONT_HERSHEY_SIMPLEX, 0.75, (50, 170, 50), 2)
     cv2.putText(frame, "FPS : " + str(int(fps)), (100, 50),
                 cv2.FONT_HERSHEY_SIMPLEX, 0.75, (50, 170, 50), 2)
-    preview(frame=frame)
+    # preview(frame=frame)
 
 
 def detect_ini():  # detect object to track and initialize the tracker
@@ -84,7 +85,10 @@ def detect_ini():  # detect object to track and initialize the tracker
             return
         cv2.imwrite('frame.jpg', frame)
         # 使用yolo模型进行检测
+        start_time = time.perf_counter()
         dets = yolonet.detect(frame)
+        end_time = time.perf_counter()
+        print("Detection time: ", end_time - start_time)
         boxes = yolonet.postprocess(frame, dets)
 
         # 如果检测到目标，使用第一个检测到的目标来初始化跟踪器

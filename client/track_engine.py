@@ -31,7 +31,7 @@ def calculate_anchor_midpoint(bbox):
 
 class TrackEngine:
     def  __init__(self):
-        self.video = None
+        self.video = cv2.VideoCapture(0)
         self.frame_height = None
         self.frame_width =None
         self.yolonet = yolov5(yolo_type='yolov5s', confThreshold=0.50, nmsThreshold=0.5, objThreshold=0.5, path='./weights/')
@@ -117,8 +117,7 @@ class TrackEngine:
 
 
     def track_prepare(self,classID):
-        video = cv2.VideoCapture(0)
-        self.video = video
+        video = self.video
         if not video.isOpened():
             print("Error: Unable to access the camera.")
         video.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
