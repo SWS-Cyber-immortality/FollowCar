@@ -96,7 +96,7 @@ def on_message(client, userdata, msg):
             control_signal = 'o'
             action_num = None
             signal_valid = True
-        elif gesId == 30:  # purchase apple
+        elif gesId == 24:  # purchase apple
             start_time = time.perf_counter()
             video, tracker, frame_height, frame_width = track_engine.track_prepare(47)
             end_time = time.perf_counter()

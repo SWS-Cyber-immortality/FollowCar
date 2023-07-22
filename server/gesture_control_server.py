@@ -93,6 +93,9 @@ def handle_gesture(indice):
         action = 'accelerate'
     elif indice == 19 and mode == 2:  # Zooming Out With Two Fingers: slow down
         action = 'slow'
+    elif indice == 24 and mode != 1:
+        action = 'purchase'
+        mode = 1
     else:
         valid = False
 
