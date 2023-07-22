@@ -43,7 +43,7 @@ def arduino_control():
                 send_to_arduino(arduino_command, str(arduino_num))
             if tracking is False and signal_valid is True and arduino_command != 'w':
                 signal_valid = False
-            time.sleep(0.5)
+            time.sleep(0.4)
 
 
 def on_connect(client, userdata, flags, rc):
@@ -61,7 +61,10 @@ def on_message(client, userdata, msg):
     if recv_dict['type'] == 'gesture':
         gesId = recv_dict['gesId']
         if gesId == 20:  # Thumb up: start to follow
+            start_time = time.perf_counter()
             video, tracker, frame_height, frame_width = track_engine.track_prepare()
+            end_time = time.perf_counter()
+            print('track_prepare time: ', end_time - start_time)
             tracking = True
             signal_valid = False
         elif gesId == 23:  # Stop sign: stop follow, start to manual control
@@ -136,7 +139,7 @@ def move_motor_based_on_anchor_change(now_anchor_midpoint_x, threshold=50):
 
 if __name__ == '__main__':
     track_engine = TrackEngine()
-    client = setup('172.25.104.29')
+    client = setup('172.25.107.87')
    
 
     arduino_signal_thread = threading.Thread(target=arduino_control)

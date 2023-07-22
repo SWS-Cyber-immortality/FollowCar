@@ -2,6 +2,8 @@ import cv2
 import os
 import sys
 import numpy as np
+import time
+
 from detect.main_yolov5 import yolov5
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -30,10 +32,10 @@ def calculate_anchor_midpoint(bbox):
 class TrackEngine:
     def  __init__(self):
         self.video = None
-        self.tracker = None
         self.frame_height = None
         self.frame_width =None
         self.yolonet = yolov5(yolo_type='yolov5s', confThreshold=0.50, nmsThreshold=0.5, objThreshold=0.5, path='./weights/')
+        self.tracker = cv2.TrackerCSRT_create()
         self.preview = Preview()
 
     def track(self,tracker,video,frame_height,frame_width):
@@ -81,7 +83,10 @@ class TrackEngine:
             # cv2.imwrite('frame.jpg', frame)
             # 使用yolo模型进行检测
             
+            start_time = time.perf_counter()
             dets = yolonet.detect(frame)
+            end_time = time.perf_counter()
+            print("Detection time: ", end_time - start_time)
             boxes = yolonet.postprocess(frame, dets)
 
             # 如果检测到目标，使用第一个检测到的目标来初始化跟踪器
@@ -124,7 +129,7 @@ class TrackEngine:
         params.compress_feature = True
         params.compressed_size = 1
         # 使用这些参数创建跟踪器
-        self.tracker = cv2.TrackerCSRT_create()
+       
         
         # detect object to track and initialize the tracker
         ret, frame = video.read()
