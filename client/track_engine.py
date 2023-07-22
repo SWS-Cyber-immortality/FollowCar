@@ -77,6 +77,7 @@ class TrackEngine:
         while True:
             ret, frame = video.read()
             frame = cv2.resize(frame, [frame_width // 2, frame_height // 2])
+            self.preview.preview(frame)
             if not ret:
                 print('cannot read the video')
                 return
@@ -117,6 +118,7 @@ class TrackEngine:
 
     def track_prepare(self):
         video = cv2.VideoCapture(0)
+        self.video = video
         if not video.isOpened():
             print("Error: Unable to access the camera.")
         video.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
@@ -136,3 +138,7 @@ class TrackEngine:
         frame_height, frame_width = frame.shape[:2]
         self.detect_ini(self.yolonet,self.tracker,video,frame_height,frame_width)
         return video,self.tracker,frame_height,frame_width
+
+    def preview_from_camera(self):
+        ret, frame = self.video.read()
+        self.preview.preview(frame)
