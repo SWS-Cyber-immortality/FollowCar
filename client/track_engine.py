@@ -138,6 +138,10 @@ class TrackEngine:
         frame_height, frame_width = frame.shape[:2]
         self.detect_ini(self.yolonet,self.tracker,video,frame_height,frame_width,classID)
         return video,self.tracker,frame_height,frame_width
+
+    def preview_from_camera(self):
+        ret, frame = self.video.read()
+        self.preview.preview(frame)
 # def calculate_rotation_angle(track_engine, distance):
 #     # 使用yolo模型进行检测
 #     ret, frame = track_engine.video.read()
