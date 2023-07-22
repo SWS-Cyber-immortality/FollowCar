@@ -141,7 +141,7 @@ if __name__ == '__main__':
 
     score_energy = torch.zeros((eval_samples, num_classes))
 
-    client = setup('172.25.107.87')
+    client = setup('192.168.43.41')
     # client = setup('localhost')
     while True:
         ret, frame = cam.read()
