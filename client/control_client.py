@@ -160,3 +160,4 @@ if __name__ == '__main__':
         elif signal_valid is True:
             arduino_command = control_signal
             arduino_num = action_num
+            track_engine.preview_from_camera()
