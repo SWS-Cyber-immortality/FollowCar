@@ -35,7 +35,7 @@ def send_to_arduino(command, num =None):
 
 # 读取键盘指令并发送给 Arduino
 def test():
-    send_to_arduino('q','20')
+    send_to_arduino('a','20')
 
 # def main():
 #     arduino_thread = threading.Thread(target=send_to_arduino, args=('w', 5))
@@ -51,7 +51,7 @@ def test():
 
 if __name__ == "__main__":
     # pass
-   send_to_arduino('q')
+   send_to_arduino('r','90')
    
 
 

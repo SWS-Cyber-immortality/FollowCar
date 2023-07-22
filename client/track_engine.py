@@ -124,8 +124,8 @@ class TrackEngine:
         params.compress_feature = True
         params.compressed_size = 1
         # 使用这些参数创建跟踪器
-        self.tracker = cv2.TrackerKCF_create()
-        self.yolonet = yolov5(yolo_type='yolov5s', confThreshold=0.50, nmsThreshold=0.5, objThreshold=0.5, path='./weights/')
+        self.tracker = cv2.TrackerCSRT_create()
+        
         # detect object to track and initialize the tracker
         ret, frame = video.read()
         frame_height, frame_width = frame.shape[:2]

@@ -33,14 +33,17 @@ upper_bound = 90 + max_angle
 arduino_command = None
 arduino_num = 0
 def arduino_control():
-    global arduino_command, arduino_num
+    global arduino_command, arduino_num, tracking, signal_valid
     while True:
-        if arduino_command is not None:
-            time.sleep(2)
+        if arduino_command is not None and (tracking is True or signal_valid is True):
+            print('tracking: ', tracking, 'signal_valid: ', signal_valid, 'arduino_command: ', arduino_command, 'arduino_num: ', arduino_num)
             if arduino_num == None:
                 send_to_arduino(arduino_command)
             else:
                 send_to_arduino(arduino_command, str(arduino_num))
+            if tracking is False and signal_valid is True and arduino_command != 'w':
+                signal_valid = False
+            time.sleep(0.5)
 
 
 def on_connect(client, userdata, flags, rc):
@@ -51,7 +54,7 @@ def on_connect(client, userdata, flags, rc):
         print("Failed to connect. Error code: {}.".format(rc))
 
 def on_message(client, userdata, msg):
-    global tracking, video, tracker, frame_height, frame_width, signal_valid, signal_valid, control_signal, action_num
+    global tracking, video, tracker, frame_height, arduino_command, frame_width, signal_valid, signal_valid, control_signal, action_num
     recv_file = msg.payload
     recv_dict = json.loads(recv_file)
     print(recv_dict)
@@ -62,19 +65,25 @@ def on_message(client, userdata, msg):
             tracking = True
             signal_valid = False
         elif gesId == 23:  # Stop sign: stop follow, start to manual control
+            control_signal='q'
+            action_num = None
             tracking = False
-            signal_valid = False
-        elif gesId == 21:  # Thumb down: Go ahead
+            signal_valid = True
+        elif gesId == 16 or gesId == 18:  # Zoom in: Go ahead
             control_signal = 'w'
             action_num = 20
             signal_valid = True
+        elif gesId == 17 or gesId == 19:  # Zoom out: Go back
+            control_signal = 's'
+            action_num = 20
+            signal_valid = True
         elif gesId == 0 or gesId == 6:  # Swiping left: turn left
-            control_signal = 'a'
-            action_num = 90
+            control_signal = 'h'
+            action_num = 60
             signal_valid = True
         elif gesId == 1 or gesId == 7:  # Swiping right: turn right
-            control_signal = 'd'
-            action_num = 90
+            control_signal = 'g'
+            action_num = 60
             signal_valid = True
         elif gesId == 18 and control_signal == 'w':
             control_signal = 'p'
@@ -105,11 +114,11 @@ def move_motor_based_on_anchor_change(now_anchor_midpoint_x, threshold=50):
     angle = -0.1875*now_anchor_midpoint_x + 120
     # angle = upper_bound + ((now_anchor_midpoint_x / 320) * (upper_bound - lower_bound))
     
-    print("angle: ", angle)
-    print("previous_angle: ", previous_angle)
-    print("x: ", now_anchor_midpoint_x)
+    # print("angle: ", angle)
+    # print("previous_angle: ", previous_angle)
+    # print("x: ", now_anchor_midpoint_x)
     # Only send the new angle to the Arduino if the difference with the previous angle is larger than 10 degrees
-    if previous_angle is None or abs(previous_angle - angle) > 3:
+    if previous_angle is None or abs(previous_angle - angle) > 2:
         send_to_arduino('r', str(int(angle)))  # Move the servo
         previous_angle = angle
 
@@ -126,8 +135,9 @@ def move_motor_based_on_anchor_change(now_anchor_midpoint_x, threshold=50):
 
 
 if __name__ == '__main__':
-    client = setup('172.25.104.29')
     track_engine = TrackEngine()
+    client = setup('172.25.104.29')
+   
 
     arduino_signal_thread = threading.Thread(target=arduino_control)
     arduino_signal_thread.daemon = True
@@ -140,5 +150,3 @@ if __name__ == '__main__':
         elif signal_valid is True:
             arduino_command = control_signal
             arduino_num = action_num
-            if control_signal != 'w':
-                signal_valid = False
